@@ -48,21 +48,50 @@ td.pick,th.pick{white-space:normal;max-width:240px}
   td.pick,th.pick{max-width:108px}
   th,td{padding:6px 5px;font-size:12px}
 }
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:16px 0 4px}
+.search{flex:1;min-width:0;position:relative;width:100%}
+.search input{width:100%;background:#0c0c0c;border:1px solid var(--gb);border-radius:999px;color:var(--txt);font:14px Inter,system-ui,sans-serif;padding:11px 40px 11px 40px;outline:none;-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:#737373}
+.search input:focus{border-color:var(--gold);box-shadow:0 0 0 2px #e8b92333}
+.search input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none}
+.search .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex}
+.search .clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#262626;border:0;color:var(--txt);cursor:pointer;width:26px;height:26px;border-radius:999px;font-size:16px;line-height:1;display:none}
+.search .clr.on{display:inline-flex;align-items:center;justify-content:center}
+.filtersum{font-size:12px;color:var(--muted);margin:8px 0 0;min-height:1.2em}
+.filtersum b{color:var(--txt);font-weight:600}
+.filtersum .pos{color:var(--green)}.filtersum .neg{color:var(--red)}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:#fff3b0}
+th.sortable .arrow{margin-left:4px;font-size:9px;opacity:.4;letter-spacing:0}
+th.sortable.act .arrow{opacity:1;color:var(--gold)}
+.empty{color:var(--muted);padding:14px 10px;text-align:left}
+@media(max-width:600px){
+  .search input{font-size:16px;padding:12px 40px 12px 40px}
+}
 </style>
 </head>
 <body>
 <div class="top"><div class="wrap"><h1>My Bets Tracker</h1><div class="muted" id="sub">Chris bets, FanDuel Predicts and PrizePicks slips</div></div></div>
 <div class="wrap fx-in" id="app" style="padding-bottom:40px">
   <div class="cards" id="hero" style="margin-top:18px"></div>
+  <div class="toolbar">
+    <div class="search">
+      <span class="ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+      <input id="q" type="search" placeholder="Search picks, dates, results, books…" autocomplete="off" enterkeyhint="search" aria-label="Search bets">
+      <button type="button" class="clr" id="qclear" aria-label="Clear search">×</button>
+    </div>
+  </div>
+  <div class="filtersum" id="filtersum"></div>
   <h2>Chris bets</h2>
-  <div class="muted" style="margin-bottom:8px">Oldest first.</div>
+  <div class="muted" id="chrisorder" style="margin-bottom:8px">Oldest first.</div>
   <div class="scroll" id="christable"></div>
   <h2>My FanDuel Predicts bets</h2>
-  <div class="muted" style="margin-bottom:8px">Oldest first.</div>
+  <div class="muted" id="fdorder" style="margin-bottom:8px">Oldest first.</div>
   <div class="chartbox" id="chart"></div>
   <div class="scroll" id="fdtable" style="margin-top:12px"></div>
   <h2>My PrizePicks bets</h2>
-  <div class="muted" style="margin-bottom:8px">Oldest first. Undated slips are listed at the end.</div>
+  <div class="muted" id="pporder" style="margin-bottom:8px">Oldest first. Undated slips are listed at the end.</div>
   <div class="chartbox" id="ppchart"></div>
   <div class="scroll" id="pptable" style="margin-top:12px"></div>
   <div class="note" id="notes"></div>
@@ -128,48 +157,166 @@ function shareHalf(b){
   return o;
 }
 
+
+const ALL = {chris:[], fd:[], pp:[]};
+const sorts = {
+  chris: {key:'date', type:'date', dir:'asc'},
+  fd: {key:'date', type:'date', dir:'asc'},
+  pp: {key:'date', type:'date', dir:'asc'}
+};
+let query = '';
+let bootstrapped = false;
+
+const BOOK = {
+  chris: {label:'Chris', aliases:'chris share half'},
+  fd: {label:'FanDuel', aliases:'fanduel fd fan duel predicts'},
+  pp: {label:'PrizePicks', aliases:'prizepicks prize picks pp'}
+};
+
+function haystack(b, book){
+  const meta = BOOK[book];
+  return [
+    b.picks, b.date, b.result, b.type, b.matchup, b.odds, b.note,
+    b.toWin!=null ? String(b.toWin) : '',
+    meta.label, meta.aliases
+  ].join(' ').toLowerCase();
+}
+
+function numVal(b, key){
+  if(key==='profit') return (Number(b.paid)||0) - (Number(b.stake)||0);
+  if(key==='paid' || key==='payout' || key==='return') return Number(b.paid)||0;
+  return Number(b[key])||0;
+}
+
+function textVal(b, key){
+  if(key==='picks') return b.picks||'';
+  return b[key]==null ? '' : String(b[key]);
+}
+
+function sortBets(arr, key, dir, type){
+  const mul = dir==='asc' ? 1 : -1;
+  return arr.map((b,i)=>({b,i})).sort((a,c)=>{
+    if(type==='date' || key==='date'){
+      const ad = dateKey(a.b.date), cd = dateKey(c.b.date);
+      const aU = !Number.isFinite(ad) || ad>=9e15;
+      const cU = !Number.isFinite(cd) || cd>=9e15;
+      if(aU && cU) return a.i-c.i;
+      if(aU) return 1;
+      if(cU) return -1;
+      return (ad-cd)*mul || a.i-c.i;
+    }
+    if(type==='num'){
+      return (numVal(a.b,key)-numVal(c.b,key))*mul || a.i-c.i;
+    }
+    return textVal(a.b,key).toLowerCase().localeCompare(textVal(c.b,key).toLowerCase())*mul || a.i-c.i;
+  }).map(x=>x.b);
+}
+
+function visible(arr, book){
+  const q = query.trim().toLowerCase();
+  const rows = q ? arr.filter(b=>haystack(b, book).includes(q)) : arr.slice();
+  const s = sorts[book];
+  return sortBets(rows, s.key, s.dir, s.type);
+}
+
+function arrow(book, key){
+  const s = sorts[book];
+  const on = s.key===key;
+  const mark = !on ? '↕' : (s.dir==='asc' ? '▲' : '▼');
+  return `<span class="arrow">${mark}</span>`;
+}
+
+function th(book, key, type, label, cls=''){
+  const on = sorts[book].key===key;
+  const aria = on ? (sorts[book].dir==='asc'?'ascending':'descending') : 'none';
+  return `<th class="${cls} sortable${on?' act':''}" data-book="${book}" data-sort="${key}" data-type="${type}" role="columnheader" aria-sort="${aria}" tabindex="0">${label}${arrow(book,key)}</th>`;
+}
+
+function orderLabel(book, extra=''){
+  const s = sorts[book];
+  const undated = ' Undated slips stay at the end.';
+  if(s.key==='date') return (s.dir==='asc' ? 'Oldest first.' : 'Newest first.') + (book==='pp' || extra ? undated : '');
+  const names = {picks:'pick', type:'type', matchup:'matchup', odds:'odds', stake:'stake', paid:'payout', profit:'profit', result:'result'};
+  return `Sorted by ${names[s.key]||s.key}, ${s.dir==='asc'?'low to high':'high to low'}.`;
+}
+
+function tally(rows, skipFee){
+  const stake = rows.reduce((s,b)=>s+b.stake,0);
+  const paid = rows.reduce((s,b)=>s+b.paid,0);
+  const graded = skipFee ? rows.filter(b=>b.result!=='Fee') : rows;
+  const wins = graded.filter(b=>b.result==='Win').length;
+  const losses = graded.filter(b=>b.result==='Loss').length;
+  return {stake, paid, net:paid-stake, wins, losses, n:rows.length};
+}
+
 function render(D){
-  const chris = oldestFirst(D.chris||[]).map(shareHalf);
-  const fd = oldestFirst(D.fanduel||[]);
-  const pp = oldestFirst(D.prizepicks||[]);
+  ALL.chris = oldestFirst(D.chris||[]).map(shareHalf);
+  ALL.fd = oldestFirst(D.fanduel||[]);
+  ALL.pp = oldestFirst(D.prizepicks||[]);
 
-  const fdStake = fd.reduce((s,b)=>s+b.stake,0);
-  const fdPaid = fd.reduce((s,b)=>s+b.paid,0);
-  const fdNet = fdPaid-fdStake;
-  const fdWins = fd.filter(b=>b.result==='Win').length;
-  const fdLosses = fd.filter(b=>b.result==='Loss').length;
-
-  const cStaked = chris.reduce((s,b)=>s+b.stake,0);
-  const cPaid = chris.reduce((s,b)=>s+b.paid,0);
-  const cNet = cPaid-cStaked;
-  const cGraded = chris.filter(b=>b.result!=='Fee');
-  const cWins = cGraded.filter(b=>b.result==='Win').length;
-  const cLosses = cGraded.length-cWins;
-
-  const ppStake = pp.reduce((s,b)=>s+b.stake,0);
-  const ppPaid = pp.reduce((s,b)=>s+b.paid,0);
-  const ppNet = ppPaid-ppStake;
-  const ppWins = pp.filter(b=>b.result==='Win').length;
-  const ppLosses = pp.filter(b=>b.result==='Loss').length;
-
-  const totalProfit = cNet + fdNet + ppNet;
-  const myStake = cStaked + fdStake + ppStake;
-  const wins = cWins + fdWins + ppWins;
-  const losses = cLosses + fdLosses + ppLosses;
+  const chris = ALL.chris, fd = ALL.fd, pp = ALL.pp;
+  const c = tally(chris, true);
+  const f = tally(fd, false);
+  const p = tally(pp, false);
+  const totalProfit = c.net + f.net + p.net;
+  const myStake = c.stake + f.stake + p.stake;
+  const wins = c.wins + f.wins + p.wins;
+  const losses = c.losses + f.losses + p.losses;
   const graded = wins + losses;
 
   document.getElementById('sub').textContent =
-    `Up ${usd(totalProfit)} · FanDuel ${usd(fdNet,true)} · Chris ${usd(cNet,true)} · PrizePicks ${usd(ppNet,true)}`;
+    `Up ${usd(totalProfit)} · FanDuel ${usd(f.net,true)} · Chris ${usd(c.net,true)} · PrizePicks ${usd(p.net,true)}`;
 
   document.getElementById('hero').innerHTML = [
     ['Total profit', usd(totalProfit,true), totalProfit>=0?'pos shim':'neg shim','hero', `Chris + FanDuel + PrizePicks`],
-    ['FanDuel net', usd(fdNet,true), fdNet>=0?'pos':'neg','', `${usd(fdPaid)} paid − ${usd(fdStake)} staked`],
-    ['Chris bets', usd(cNet,true), cNet>=0?'pos':'neg','', `${usd(cPaid)} paid − ${usd(cStaked)} staked`],
-    ['PrizePicks net', usd(ppNet,true), ppNet>=0?'pos':'neg','', `${usd(ppPaid)} paid − ${usd(ppStake)} staked`],
+    ['FanDuel net', usd(f.net,true), f.net>=0?'pos':'neg','', `${usd(f.paid)} paid − ${usd(f.stake)} staked`],
+    ['Chris bets', usd(c.net,true), c.net>=0?'pos':'neg','', `${usd(c.paid)} paid − ${usd(c.stake)} staked`],
+    ['PrizePicks net', usd(p.net,true), p.net>=0?'pos':'neg','', `${usd(p.paid)} paid − ${usd(p.stake)} staked`],
     ['Total staked (mine)', usd(myStake),'','', 'Chris + FanDuel + PrizePicks'],
     ['Record', `${wins}–${losses}`,'','', `${wins} wins · ${losses} loss${losses===1?'':'es'}`],
     ['Win rate', pct(wins,graded),'','', `${wins} of ${graded} bets`]
   ].map(([l,v,cls,hero,s])=>`<div class="card${hero?' hero':''}"><div class="l">${l}</div><div class="v ${cls}">${v}</div>${s?`<div class="s">${s}</div>`:''}</div>`).join('');
+
+  profitChart(document.getElementById('chart'), fd, b=>short(b.picks));
+  if(pp.length){
+    profitChart(document.getElementById('ppchart'), pp, b=>short(b.picks));
+  } else {
+    document.getElementById('ppchart').innerHTML='';
+  }
+
+  document.getElementById('notes').innerHTML=(D.notes||[]).map(esc).join('<br>');
+  renderTables();
+  if(!bootstrapped){
+    bindControls();
+    bootstrapped = true;
+  }
+}
+
+function renderTables(){
+  const q = query.trim();
+  const chris = visible(ALL.chris, 'chris');
+  const fd = visible(ALL.fd, 'fd');
+  const pp = visible(ALL.pp, 'pp');
+  const c = tally(chris, true);
+  const f = tally(fd, false);
+  const p = tally(pp, false);
+  const allN = ALL.chris.length + ALL.fd.length + ALL.pp.length;
+  const visN = chris.length + fd.length + pp.length;
+  const net = c.net + f.net + p.net;
+  const stake = c.stake + f.stake + p.stake;
+  const sum = document.getElementById('filtersum');
+  const clr = document.getElementById('qclear');
+  if(clr) clr.classList.toggle('on', !!q);
+  if(q){
+    const rec = `${c.wins+f.wins+p.wins}–${c.losses+f.losses+p.losses}`;
+    sum.innerHTML = `Showing <b>${visN}</b> of ${allN} bets · filtered net <b class="${net>=0?'pos':'neg'}">${usd(net,true)}</b> on ${usd(stake)} staked · ${rec}`;
+  } else {
+    sum.textContent = '';
+  }
+
+  document.getElementById('chrisorder').textContent = orderLabel('chris');
+  document.getElementById('fdorder').textContent = orderLabel('fd');
+  document.getElementById('pporder').textContent = orderLabel('pp', true);
 
   const cRows = chris.map(b=>{
     const profit=b.paid-b.stake;
@@ -188,20 +335,18 @@ function render(D){
       <td>${resultBadge(b)}</td>
       <td class="desk">${wp}</td>
     </tr>`;
-  }).join('');
-  const cFoot=`<tr class="ft">
-    <td class="t pick">Total</td><td></td><td class="desk"></td>
-    <td>${usd(cStaked)}</td><td>${usd(cPaid)}</td>
-    <td class="${cNet>=0?'pos':'neg'}">${usd(cNet,true)}</td>
-    <td>${cWins}–${cLosses}</td>
+  }).join('') || `<tr><td class="empty t" colspan="8">No matching bets.</td></tr>`;
+  const cFoot = chris.length ? `<tr class="ft">
+    <td class="t pick">${q?'Filtered':'Total'}</td><td></td><td class="desk"></td>
+    <td>${usd(c.stake)}</td><td>${usd(c.paid)}</td>
+    <td class="${c.net>=0?'pos':'neg'}">${usd(c.net,true)}</td>
+    <td>${c.wins}–${c.losses}</td>
     <td class="desk"></td>
-  </tr>`;
+  </tr>` : '';
   document.getElementById('christable').innerHTML=`<table><thead><tr>
-    <th class="t pick">Picks</th><th class="t">Date</th><th class="t desk">Type</th>
-    <th>Stake</th><th>Paid</th><th>Profit</th><th>Result</th><th class="desk">Multiple</th>
+    ${th('chris','picks','text','Picks','t pick')}${th('chris','date','date','Date','t')}${th('chris','type','text','Type','t desk')}
+    ${th('chris','stake','num','Stake')}${th('chris','paid','num','Paid')}${th('chris','profit','num','Profit')}${th('chris','result','text','Result')}<th class="desk">Multiple</th>
   </tr></thead><tbody>${cRows}</tbody><tfoot>${cFoot}</tfoot></table>`;
-
-  profitChart(document.getElementById('chart'), fd, b=>short(b.picks));
 
   const fRows = fd.map(b=>{
     const profit=b.paid-b.stake;
@@ -216,23 +361,18 @@ function render(D){
       <td class="${profit>=0?'pos':'neg'}" data-v="${profit}">${usd(profit,true)}</td>
       <td>${resultBadge(b)}</td>
     </tr>`;
-  }).join('');
-  const fFoot=`<tr class="ft">
-    <td class="t pick">Total</td><td></td><td class="desk"></td><td class="desk"></td>
-    <td>${usd(fdStake)}</td><td>${usd(fdPaid)}</td>
-    <td class="${fdNet>=0?'pos':'neg'}">${usd(fdNet,true)}</td>
-    <td>${fdWins}–${fdLosses}</td>
-  </tr>`;
+  }).join('') || `<tr><td class="empty t" colspan="8">No matching bets.</td></tr>`;
+  const fFoot = fd.length ? `<tr class="ft">
+    <td class="t pick">${q?'Filtered':'Total'}</td><td></td><td class="desk"></td><td class="desk"></td>
+    <td>${usd(f.stake)}</td><td>${usd(f.paid)}</td>
+    <td class="${f.net>=0?'pos':'neg'}">${usd(f.net,true)}</td>
+    <td>${f.wins}–${f.losses}</td>
+  </tr>` : '';
   document.getElementById('fdtable').innerHTML=`<table><thead><tr>
-    <th class="t pick">Pick</th><th class="t">Date</th><th class="t desk">Matchup</th><th class="desk">Odds</th>
-    <th>Stake</th><th>Return</th><th>Profit</th><th>Result</th>
+    ${th('fd','picks','text','Pick','t pick')}${th('fd','date','date','Date','t')}${th('fd','matchup','text','Matchup','t desk')}${th('fd','odds','text','Odds','desk')}
+    ${th('fd','stake','num','Stake')}${th('fd','paid','num','Return')}${th('fd','profit','num','Profit')}${th('fd','result','text','Result')}
   </tr></thead><tbody>${fRows}</tbody><tfoot>${fFoot}</tfoot></table>`;
 
-  if(pp.length){
-    profitChart(document.getElementById('ppchart'), pp, b=>short(b.picks));
-  } else {
-    document.getElementById('ppchart').innerHTML='';
-  }
   const pRows = pp.map(b=>{
     const profit=b.paid-b.stake;
     const picks=esc(b.picks)+(b.note?` <span class="cash">↗ ${esc(b.note)}</span>`:'');
@@ -248,19 +388,55 @@ function render(D){
       <td class="${profit>=0?'pos':'neg'}" data-v="${profit}">${usd(profit,true)}</td>
       <td>${resultBadge(b)}</td>
     </tr>`;
-  }).join('');
-  const pFoot=`<tr class="ft">
-    <td class="t pick">Total</td><td></td><td class="desk"></td>
-    <td>${usd(ppStake)}</td><td>${usd(ppPaid)}</td>
-    <td class="${ppNet>=0?'pos':'neg'}">${usd(ppNet,true)}</td>
-    <td>${ppWins}–${ppLosses}</td>
-  </tr>`;
+  }).join('') || `<tr><td class="empty t" colspan="7">No matching bets.</td></tr>`;
+  const pFoot = pp.length ? `<tr class="ft">
+    <td class="t pick">${q?'Filtered':'Total'}</td><td></td><td class="desk"></td>
+    <td>${usd(p.stake)}</td><td>${usd(p.paid)}</td>
+    <td class="${p.net>=0?'pos':'neg'}">${usd(p.net,true)}</td>
+    <td>${p.wins}–${p.losses}</td>
+  </tr>` : '';
   document.getElementById('pptable').innerHTML=`<table><thead><tr>
-    <th class="t pick">Picks</th><th class="t">Date</th><th class="t desk">Type</th>
-    <th>Stake</th><th>Paid</th><th>Profit</th><th>Result</th>
+    ${th('pp','picks','text','Picks','t pick')}${th('pp','date','date','Date','t')}${th('pp','type','text','Type','t desk')}
+    ${th('pp','stake','num','Stake')}${th('pp','paid','num','Paid')}${th('pp','profit','num','Profit')}${th('pp','result','text','Result')}
   </tr></thead><tbody>${pRows}</tbody><tfoot>${pFoot}</tfoot></table>`;
+}
 
-  document.getElementById('notes').innerHTML=(D.notes||[]).map(esc).join('<br>');
+function applySort(book, key, type){
+  const s = sorts[book];
+  if(s.key===key) s.dir = s.dir==='asc' ? 'desc' : 'asc';
+  else {
+    s.key = key;
+    s.type = type;
+    s.dir = type==='num' ? 'desc' : 'asc';
+  }
+  renderTables();
+}
+
+function bindControls(){
+  const input = document.getElementById('q');
+  const clr = document.getElementById('qclear');
+  input.addEventListener('input', ()=>{
+    query = input.value;
+    renderTables();
+  });
+  clr.addEventListener('click', ()=>{
+    input.value = '';
+    query = '';
+    renderTables();
+    input.focus();
+  });
+  document.getElementById('app').addEventListener('click', e=>{
+    const th = e.target.closest('th.sortable');
+    if(!th) return;
+    applySort(th.dataset.book, th.dataset.sort, th.dataset.type);
+  });
+  document.getElementById('app').addEventListener('keydown', e=>{
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const th = e.target.closest('th.sortable');
+    if(!th) return;
+    e.preventDefault();
+    applySort(th.dataset.book, th.dataset.sort, th.dataset.type);
+  });
 }
 
 fetch('data.json',{cache:'no-store'})
