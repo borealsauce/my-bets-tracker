@@ -51,7 +51,7 @@ td.pick,th.pick{white-space:normal;max-width:240px}
 </style>
 </head>
 <body>
-<div class="top"><div class="wrap"><h1>My Bets Tracker</h1><div class="muted" id="sub">Chris bets and FanDuel Predicts slips</div></div></div>
+<div class="top"><div class="wrap"><h1>My Bets Tracker</h1><div class="muted" id="sub">Chris bets, FanDuel Predicts and PrizePicks slips</div></div></div>
 <div class="wrap fx-in" id="app" style="padding-bottom:40px">
   <div class="cards" id="hero" style="margin-top:18px"></div>
   <h2>Chris bets</h2>
@@ -61,6 +61,10 @@ td.pick,th.pick{white-space:normal;max-width:240px}
   <div class="muted" style="margin-bottom:8px">Oldest first.</div>
   <div class="chartbox" id="chart"></div>
   <div class="scroll" id="fdtable" style="margin-top:12px"></div>
+  <h2>My PrizePicks bets</h2>
+  <div class="muted" style="margin-bottom:8px">Oldest first. Undated slips are listed at the end.</div>
+  <div class="chartbox" id="ppchart"></div>
+  <div class="scroll" id="pptable" style="margin-top:12px"></div>
   <div class="note" id="notes"></div>
 </div>
 <script>
@@ -75,7 +79,7 @@ const short = p => (p||'').split(',')[0].trim();
 const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 function dateKey(s){
   const m = String(s||'').trim().match(/^([A-Za-z]+)\s+(\d{1,2})(?:,?\s*(\d{4}))?/);
-  if(!m) return 0;
+  if(!m) return 9e15;
   const mon = MONTHS[m[1].slice(0,3).toLowerCase()];
   if(mon==null) return 0;
   const year = m[3] ? +m[3] : 2026;
@@ -127,6 +131,7 @@ function shareHalf(b){
 function render(D){
   const chris = oldestFirst(D.chris||[]).map(shareHalf);
   const fd = oldestFirst(D.fanduel||[]);
+  const pp = oldestFirst(D.prizepicks||[]);
 
   const fdStake = fd.reduce((s,b)=>s+b.stake,0);
   const fdPaid = fd.reduce((s,b)=>s+b.paid,0);
@@ -141,20 +146,27 @@ function render(D){
   const cWins = cGraded.filter(b=>b.result==='Win').length;
   const cLosses = cGraded.length-cWins;
 
-  const totalProfit = cNet + fdNet;
-  const myStake = cStaked + fdStake;
-  const wins = cWins + fdWins;
-  const losses = cLosses + fdLosses;
+  const ppStake = pp.reduce((s,b)=>s+b.stake,0);
+  const ppPaid = pp.reduce((s,b)=>s+b.paid,0);
+  const ppNet = ppPaid-ppStake;
+  const ppWins = pp.filter(b=>b.result==='Win').length;
+  const ppLosses = pp.filter(b=>b.result==='Loss').length;
+
+  const totalProfit = cNet + fdNet + ppNet;
+  const myStake = cStaked + fdStake + ppStake;
+  const wins = cWins + fdWins + ppWins;
+  const losses = cLosses + fdLosses + ppLosses;
   const graded = wins + losses;
 
   document.getElementById('sub').textContent =
-    `Up ${usd(totalProfit)} · FanDuel ${usd(fdNet,true)} · Chris ${usd(cNet,true)}`;
+    `Up ${usd(totalProfit)} · FanDuel ${usd(fdNet,true)} · Chris ${usd(cNet,true)} · PrizePicks ${usd(ppNet,true)}`;
 
   document.getElementById('hero').innerHTML = [
-    ['Total profit', usd(totalProfit,true), totalProfit>=0?'pos shim':'neg shim','hero', `Chris bets + FanDuel net`],
+    ['Total profit', usd(totalProfit,true), totalProfit>=0?'pos shim':'neg shim','hero', `Chris + FanDuel + PrizePicks`],
     ['FanDuel net', usd(fdNet,true), fdNet>=0?'pos':'neg','', `${usd(fdPaid)} paid − ${usd(fdStake)} staked`],
     ['Chris bets', usd(cNet,true), cNet>=0?'pos':'neg','', `${usd(cPaid)} paid − ${usd(cStaked)} staked`],
-    ['Total staked (mine)', usd(myStake),'','', 'Chris bets + FanDuel Predicts'],
+    ['PrizePicks net', usd(ppNet,true), ppNet>=0?'pos':'neg','', `${usd(ppPaid)} paid − ${usd(ppStake)} staked`],
+    ['Total staked (mine)', usd(myStake),'','', 'Chris + FanDuel + PrizePicks'],
     ['Record', `${wins}–${losses}`,'','', `${wins} wins · ${losses} loss${losses===1?'':'es'}`],
     ['Win rate', pct(wins,graded),'','', `${wins} of ${graded} bets`]
   ].map(([l,v,cls,hero,s])=>`<div class="card${hero?' hero':''}"><div class="l">${l}</div><div class="v ${cls}">${v}</div>${s?`<div class="s">${s}</div>`:''}</div>`).join('');
@@ -215,6 +227,38 @@ function render(D){
     <th class="t pick">Pick</th><th class="t">Date</th><th class="t desk">Matchup</th><th class="desk">Odds</th>
     <th>Stake</th><th>Return</th><th>Profit</th><th>Result</th>
   </tr></thead><tbody>${fRows}</tbody><tfoot>${fFoot}</tfoot></table>`;
+
+  if(pp.length){
+    profitChart(document.getElementById('ppchart'), pp, b=>short(b.picks));
+  } else {
+    document.getElementById('ppchart').innerHTML='';
+  }
+  const pRows = pp.map(b=>{
+    const profit=b.paid-b.stake;
+    const picks=esc(b.picks)+(b.note?` <span class="cash">↗ ${esc(b.note)}</span>`:'');
+    const paidTxt = b.result==='Loss'
+      ? `${usd(b.paid)}${b.toWin!=null?` <span class="muted">(to win ${usd(b.toWin)})</span>`:''}`
+      : usd(b.paid);
+    return `<tr>
+      <td class="t pick">${picks}</td>
+      <td class="t">${esc(b.date)}</td>
+      <td class="t desk">${esc(b.type||'')}</td>
+      <td data-v="${b.stake}">${usd(b.stake)}</td>
+      <td data-v="${b.paid}">${paidTxt}</td>
+      <td class="${profit>=0?'pos':'neg'}" data-v="${profit}">${usd(profit,true)}</td>
+      <td>${resultBadge(b)}</td>
+    </tr>`;
+  }).join('');
+  const pFoot=`<tr class="ft">
+    <td class="t pick">Total</td><td></td><td class="desk"></td>
+    <td>${usd(ppStake)}</td><td>${usd(ppPaid)}</td>
+    <td class="${ppNet>=0?'pos':'neg'}">${usd(ppNet,true)}</td>
+    <td>${ppWins}–${ppLosses}</td>
+  </tr>`;
+  document.getElementById('pptable').innerHTML=`<table><thead><tr>
+    <th class="t pick">Picks</th><th class="t">Date</th><th class="t desk">Type</th>
+    <th>Stake</th><th>Paid</th><th>Profit</th><th>Result</th>
+  </tr></thead><tbody>${pRows}</tbody><tfoot>${pFoot}</tfoot></table>`;
 
   document.getElementById('notes').innerHTML=(D.notes||[]).map(esc).join('<br>');
 }

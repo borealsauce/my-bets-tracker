@@ -211,5 +211,314 @@
       "paid": 2700.0,
       "result": "Win"
     }
+  ],
+  "prizepicks": [
+    {
+      "date": "Undated",
+      "picks": "L. Ball, D. Avdija, S. Castle",
+      "type": "3-Pick Flex Play",
+      "stake": 9.01,
+      "paid": 0,
+      "toWin": 27.03,
+      "result": "Loss",
+      "note": "promo"
+    },
+    {
+      "date": "Nov 13, 2025",
+      "picks": "D. Mitchell, I. Quickley (2), E. Rodrigues, D. Maye",
+      "type": "5-Pick Flex Play",
+      "stake": 10,
+      "paid": 4,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 13, 2025",
+      "picks": "D. Mitchell, I. Quickley (2), E. Rodrigues, D. Maye",
+      "type": "5-Pick Power Play",
+      "stake": 5,
+      "paid": 0,
+      "toWin": 95,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 13, 2025",
+      "picks": "D. Maye, J. Fields, S. Diggs",
+      "type": "3-Pick Power Play",
+      "stake": 5,
+      "paid": 0,
+      "toWin": 30,
+      "result": "Loss"
+    },
+    {
+      "date": "Undated",
+      "picks": "B. Purdy, D. Henry",
+      "type": "2-Pick Power Play",
+      "stake": 99,
+      "paid": 66.06,
+      "result": "Win",
+      "note": "cash-out"
+    },
+    {
+      "date": "Undated",
+      "picks": "E. Wilson, D. Henry",
+      "type": "2-Pick Power Play",
+      "stake": 10,
+      "paid": 0,
+      "toWin": 35,
+      "result": "Loss",
+      "note": "promo"
+    },
+    {
+      "date": "Undated",
+      "picks": "M. Evans, B. Robinson, D. Henry",
+      "type": "3-Pick Flex Play",
+      "stake": 10,
+      "paid": 0,
+      "toWin": 49.2,
+      "result": "Loss",
+      "note": "promo"
+    },
+    {
+      "date": "Oct 11",
+      "picks": "K. Black, D. Henry",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 0,
+      "toWin": 95,
+      "result": "Loss"
+    },
+    {
+      "date": "Oct 11",
+      "picks": "R. Shaheed, B. Robinson",
+      "type": "2-Pick Power Play",
+      "stake": 50.06,
+      "paid": 162.7,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 11",
+      "picks": "B. Purdy, D. Henry",
+      "type": "2-Pick Power Play",
+      "stake": 50,
+      "paid": 95,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 11",
+      "picks": "J. Smith-Njigba, D. Henry",
+      "type": "2-Pick Power Play",
+      "stake": 97,
+      "paid": 281.3,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 12",
+      "picks": "R. Davis, K. Thornton",
+      "type": "2-Pick Power Play",
+      "stake": 150,
+      "paid": 0,
+      "toWin": 1387.5,
+      "result": "Loss"
+    },
+    {
+      "date": "Oct 12",
+      "picks": "D. Knox, A. Reese",
+      "type": "2-Pick Power Play",
+      "stake": 50,
+      "paid": 0,
+      "toWin": 393.75,
+      "result": "Loss",
+      "note": "promo"
+    },
+    {
+      "date": "Oct 31",
+      "picks": "V. Wembanyama, P. Mahomes",
+      "type": "2-Pick Power Play",
+      "stake": 5,
+      "paid": 10,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 6",
+      "picks": "J. Tatum, P. Pritchard, J. Gibbs",
+      "type": "3-Pick Power Play",
+      "stake": 20,
+      "paid": 0,
+      "toWin": 85,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 4",
+      "picks": "D. Mitchell, L. Don\u010di\u0107",
+      "type": "2-Pick Power Play",
+      "stake": 0,
+      "paid": 20,
+      "result": "Win",
+      "note": "bonus"
+    },
+    {
+      "date": "Nov 4",
+      "picks": "S. Gilgeous-Alexander, L. Don\u010di\u0107",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 42,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 6",
+      "picks": "P. Pritchard, J. Gibbs",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 58,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 6",
+      "picks": "J. Tatum, J. Gibbs",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 0,
+      "toWin": 85,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 7",
+      "picks": "E. Smith, S. Sanders",
+      "type": "2-Pick Power Play",
+      "stake": 30,
+      "paid": 57,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 7",
+      "picks": "S. Gilgeous-Alexander, S. Sanders",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 0,
+      "toWin": 90,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "D. Peterson, S. Diggs",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 100,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "F. Wagner, C. Skattebo",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 85,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "A. Black, C. Skattebo",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 38,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "K. George, C. Skattebo",
+      "type": "2-Pick Power Play",
+      "stake": 5,
+      "paid": 0,
+      "toWin": 12.15,
+      "result": "Loss",
+      "note": "promo"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "D. Bane, M. Nabers",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 38,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "A. Black, J. Daniels",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 80,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 10",
+      "picks": "K. Thompson, S. Gilgeous-Alexander",
+      "type": "2-Pick Power Play",
+      "stake": 10,
+      "paid": 0,
+      "toWin": 30,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 15",
+      "picks": "D. Garland, D. Mensah",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 65,
+      "result": "Win",
+      "note": "min guarantee"
+    },
+    {
+      "date": "Nov 15",
+      "picks": "B. Lopez, D. Mestemaker",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 42,
+      "result": "Win",
+      "note": "min guarantee"
+    },
+    {
+      "date": "Nov 15",
+      "picks": "C. McCollum, D. Mestemaker",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 65,
+      "result": "Win",
+      "note": "min guarantee"
+    },
+    {
+      "date": "Nov 15",
+      "picks": "J. Landale, D. Mestemaker",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 44,
+      "result": "Win",
+      "note": "min guarantee"
+    },
+    {
+      "date": "Nov 15",
+      "picks": "J. Giddey, D. Mestemaker",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 0,
+      "toWin": 60,
+      "result": "Loss",
+      "note": "min guarantee"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "D. Jenkins, N. Fifita",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 0,
+      "toWin": 38,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "D. Mitchell, N. Fifita",
+      "type": "2-Pick Power Play",
+      "stake": 20,
+      "paid": 34,
+      "result": "Win"
+    }
   ]
 }
