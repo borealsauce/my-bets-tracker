@@ -1,9 +1,6 @@
 {
   "title": "My Bets Tracker",
-  "chris_half": 2729.28,
-  "chris_profit_total": 5458.56,
   "notes": [
-    "Chris profit uses my account-based half ($2,729.28 of $5,458.56), not the slip sums.",
     "Send new bet screenshots in chat and this page gets updated."
   ],
   "chris": [

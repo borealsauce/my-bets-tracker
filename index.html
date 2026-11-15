@@ -51,11 +51,11 @@ td.pick,th.pick{white-space:normal;max-width:240px}
 </style>
 </head>
 <body>
-<div class="top"><div class="wrap"><h1>My Bets Tracker</h1><div class="muted" id="sub">My half of the Chris bets plus my FanDuel Predicts slips</div></div></div>
+<div class="top"><div class="wrap"><h1>My Bets Tracker</h1><div class="muted" id="sub">Chris bets and FanDuel Predicts slips</div></div></div>
 <div class="wrap fx-in" id="app" style="padding-bottom:40px">
   <div class="cards" id="hero" style="margin-top:18px"></div>
-  <h2>Chris bets (my half)</h2>
-  <div class="secnote" id="chrisnote"></div>
+  <h2>Chris bets</h2>
+  <div class="muted" style="margin-bottom:8px">Oldest first.</div>
   <div class="scroll" id="christable"></div>
   <h2>My FanDuel Predicts bets</h2>
   <div class="muted" style="margin-bottom:8px">Oldest first.</div>
@@ -115,34 +115,24 @@ function resultBadge(b){
   return `<span class="badge ${cls}">${esc(b.result)}</span>`;
 }
 
+function shareHalf(b){
+  const r = n => Math.round((Number(n)||0)*50)/100; // half, rounded to cents
+  const o = Object.assign({}, b);
+  o.stake = r(b.stake);
+  o.paid = r(b.paid);
+  if(b.toWin!=null) o.toWin = r(b.toWin);
+  return o;
+}
+
 function render(D){
-  const chris = oldestFirst(D.chris||[]);
+  const chris = oldestFirst(D.chris||[]).map(shareHalf);
   const fd = oldestFirst(D.fanduel||[]);
-  const half = Number(D.chris_half)||0;
-  const acctProfit = Number(D.chris_profit_total)|| (half*2);
 
   const fdStake = fd.reduce((s,b)=>s+b.stake,0);
   const fdPaid = fd.reduce((s,b)=>s+b.paid,0);
   const fdNet = fdPaid-fdStake;
   const fdWins = fd.filter(b=>b.result==='Win').length;
   const fdLosses = fd.filter(b=>b.result==='Loss').length;
-  const fdGraded = fdWins+fdLosses;
-  const totalProfit = half + fdNet;
-
-  document.getElementById('sub').textContent =
-    `Up ${usd(totalProfit)} · FanDuel ${usd(fdNet,true)} · Chris half ${usd(half)}`;
-
-  document.getElementById('hero').innerHTML = [
-    ['Total profit', usd(totalProfit,true), totalProfit>=0?'pos shim':'neg shim','hero', `Chris half + FanDuel net`],
-    ['FanDuel net', usd(fdNet,true), fdNet>=0?'pos':'neg','', `${usd(fdPaid)} paid − ${usd(fdStake)} staked`],
-    ['Chris half', usd(half),'pos','', `half of ${usd(acctProfit)} account profit`],
-    ['Total staked (mine)', usd(fdStake),'','', 'my FanDuel Predicts stakes'],
-    ['Record', `${fdWins}–${fdLosses}`,'','', `${fdWins} wins · ${fdLosses} loss${fdLosses===1?'':'es'} on FanDuel`],
-    ['Win rate', pct(fdWins,fdGraded),'','', `${fdWins} of ${fdGraded} FanDuel bets`]
-  ].map(([l,v,cls,hero,s])=>`<div class="card${hero?' hero':''}"><div class="l">${l}</div><div class="v ${cls}">${v}</div>${s?`<div class="s">${s}</div>`:''}</div>`).join('');
-
-  document.getElementById('chrisnote').innerHTML =
-    `My share is <b class="pos">${usd(half)}</b> — half of the ${usd(acctProfit)} account profit. The slip list is shown as lines only; its own totals can run lower and are not what the split uses. Oldest first.`;
 
   const cStaked = chris.reduce((s,b)=>s+b.stake,0);
   const cPaid = chris.reduce((s,b)=>s+b.paid,0);
@@ -150,6 +140,25 @@ function render(D){
   const cGraded = chris.filter(b=>b.result!=='Fee');
   const cWins = cGraded.filter(b=>b.result==='Win').length;
   const cLosses = cGraded.length-cWins;
+
+  const totalProfit = cNet + fdNet;
+  const myStake = cStaked + fdStake;
+  const wins = cWins + fdWins;
+  const losses = cLosses + fdLosses;
+  const graded = wins + losses;
+
+  document.getElementById('sub').textContent =
+    `Up ${usd(totalProfit)} · FanDuel ${usd(fdNet,true)} · Chris ${usd(cNet,true)}`;
+
+  document.getElementById('hero').innerHTML = [
+    ['Total profit', usd(totalProfit,true), totalProfit>=0?'pos shim':'neg shim','hero', `Chris bets + FanDuel net`],
+    ['FanDuel net', usd(fdNet,true), fdNet>=0?'pos':'neg','', `${usd(fdPaid)} paid − ${usd(fdStake)} staked`],
+    ['Chris bets', usd(cNet,true), cNet>=0?'pos':'neg','', `${usd(cPaid)} paid − ${usd(cStaked)} staked`],
+    ['Total staked (mine)', usd(myStake),'','', 'Chris bets + FanDuel Predicts'],
+    ['Record', `${wins}–${losses}`,'','', `${wins} wins · ${losses} loss${losses===1?'':'es'}`],
+    ['Win rate', pct(wins,graded),'','', `${wins} of ${graded} bets`]
+  ].map(([l,v,cls,hero,s])=>`<div class="card${hero?' hero':''}"><div class="l">${l}</div><div class="v ${cls}">${v}</div>${s?`<div class="s">${s}</div>`:''}</div>`).join('');
+
   const cRows = chris.map(b=>{
     const profit=b.paid-b.stake;
     const paidTxt = b.result==='Loss'
@@ -169,17 +178,10 @@ function render(D){
     </tr>`;
   }).join('');
   const cFoot=`<tr class="ft">
-    <td class="t pick">Logged slips (not the split)</td><td></td><td class="desk"></td>
+    <td class="t pick">Total</td><td></td><td class="desk"></td>
     <td>${usd(cStaked)}</td><td>${usd(cPaid)}</td>
     <td class="${cNet>=0?'pos':'neg'}">${usd(cNet,true)}</td>
     <td>${cWins}–${cLosses}</td>
-    <td class="desk"></td>
-  </tr>
-  <tr class="ft">
-    <td class="t pick">My counted share</td><td></td><td class="desk"></td>
-    <td></td><td></td>
-    <td class="pos">${usd(half,true)}</td>
-    <td>half of ${usd(acctProfit)}</td>
     <td class="desk"></td>
   </tr>`;
   document.getElementById('christable').innerHTML=`<table><thead><tr>
