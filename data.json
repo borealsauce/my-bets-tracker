@@ -1,0 +1,218 @@
+{
+  "title": "My Bets Tracker",
+  "chris_half": 2729.28,
+  "chris_profit_total": 5458.56,
+  "notes": [
+    "Chris profit uses my account-based half ($2,729.28 of $5,458.56), not the slip sums.",
+    "Send new bet screenshots in chat and this page gets updated."
+  ],
+  "chris": [
+    {
+      "date": "Nov 10",
+      "picks": "I. Collier, S. Diggs",
+      "type": "2-Pick Power Play",
+      "stake": 150,
+      "paid": 1012.5,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 8",
+      "picks": "Z. Charbonnet, J. III",
+      "type": "2-Pick Power Play",
+      "stake": 40,
+      "paid": 76,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 8",
+      "picks": "M. Wilson, J. III",
+      "type": "2-Pick Power Play",
+      "stake": 100,
+      "paid": 190,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "F. Wagner, M. Nabers",
+      "type": "2-Pick Power Play",
+      "stake": 199,
+      "paid": 259.31,
+      "result": "Win",
+      "note": "cash-out"
+    },
+    {
+      "date": "Nov 11",
+      "picks": "A. Black, M. Nabers",
+      "type": "2-Pick Power Play",
+      "stake": 199,
+      "paid": 517.4,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 10",
+      "picks": "J. McCain, J. Daniels",
+      "type": "2-Pick Power Play",
+      "stake": 5,
+      "paid": 0,
+      "toWin": 22.5,
+      "result": "Loss"
+    },
+    {
+      "date": "Nov 10",
+      "picks": "D. Lillard, S. Diggs",
+      "type": "2-Pick Power Play",
+      "stake": 175,
+      "paid": 350,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 12",
+      "picks": "Game buy-in fee",
+      "type": "Fee",
+      "stake": 50,
+      "paid": 0,
+      "result": "Fee"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "Z. Risacher, D. Mestemaker",
+      "type": "2-Pick Power Play",
+      "stake": 149,
+      "paid": 1266.5,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "Z. Risacher, D. Mensah",
+      "type": "2-Pick Power Play",
+      "stake": 149,
+      "paid": 1005.75,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "K. Irving, D. Mensah",
+      "type": "2-Pick Power Play",
+      "stake": 149,
+      "paid": 283.1,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "J. McCain, J. Maiava",
+      "type": "2-Pick Power Play",
+      "stake": 175,
+      "paid": 420,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "I. Collier, S. Leavitt",
+      "type": "2-Pick Power Play",
+      "stake": 150,
+      "paid": 825,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "G. Antetokounmpo, N. Fifita",
+      "type": "2-Pick Power Play",
+      "stake": 190,
+      "paid": 950,
+      "result": "Win"
+    },
+    {
+      "date": "Nov 14",
+      "picks": "D. Mitchell, S. Leavitt",
+      "type": "2-Pick Power Play",
+      "stake": 190,
+      "paid": 323,
+      "result": "Win"
+    }
+  ],
+  "fanduel": [
+    {
+      "date": "Oct 21",
+      "picks": "Derrick Jones Jr. 1.5+ 3PM Yes",
+      "matchup": "Kings @ Clippers",
+      "odds": "5.43x",
+      "stake": 99.95,
+      "paid": 53.35,
+      "result": "Loss",
+      "note": "cash-out"
+    },
+    {
+      "date": "Oct 25",
+      "picks": "Cam Skattebo to score TD Yes",
+      "matchup": "",
+      "odds": "1.01x",
+      "stake": 555.06,
+      "paid": 560.0,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 25",
+      "picks": "Marvin Harrison Jr. to score TD Yes",
+      "matchup": "",
+      "odds": "1.03x",
+      "stake": 1359.94,
+      "paid": 1380.0,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 25",
+      "picks": "Keyonte George 0.5+ 3PM Yes",
+      "matchup": "Lakers @ Jazz",
+      "odds": "1.26x",
+      "stake": 887.76,
+      "paid": 1096.0,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 25",
+      "picks": "Jaxon Smith-Njigba to score TD Yes",
+      "matchup": "Chiefs @ Seahawks",
+      "odds": "1.98x",
+      "stake": 2100.89,
+      "paid": 3968.86,
+      "result": "Win",
+      "note": "cash-out"
+    },
+    {
+      "date": "Oct 26",
+      "picks": "Saquon Barkley first TD Yes",
+      "matchup": "Cowboys @ Eagles",
+      "odds": "7.69x",
+      "stake": 4.86,
+      "paid": 34.0,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 27",
+      "picks": "Jayson Tatum 1.5+ 3PM Yes",
+      "matchup": "Nets @ Celtics",
+      "odds": "1.01x",
+      "stake": 554.06,
+      "paid": 560.0,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 27",
+      "picks": "Sandro Mamukelashvili 1.5+ 3PM Yes",
+      "matchup": "Blazers @ Lakers",
+      "odds": "2.38x",
+      "stake": 7.92,
+      "paid": 18.0,
+      "result": "Win"
+    },
+    {
+      "date": "Oct 29",
+      "picks": "Matthew Golden to score TD Yes",
+      "matchup": "Panthers @ Packers",
+      "odds": "2.85x",
+      "stake": 999.0,
+      "paid": 2700.0,
+      "result": "Win"
+    }
+  ]
+}
