@@ -41,11 +41,12 @@ th.t,td.t{text-align:left!important}
 .shim.neg{background:none;-webkit-text-fill-color:var(--red);animation:none}
 @media(prefers-reduced-motion:reduce){.fx-in{animation:none;opacity:1}.shim{animation:none}.card:hover,.chartbox:hover{transform:none}}
 @media(max-width:600px){.wrap{padding:0 12px}.card .v{font-size:22px}.card.hero .v{font-size:28px}th,td{padding:7px 8px;font-size:13px}}
-th.t,td.t{white-space:normal;max-width:220px}
+td.pick,th.pick{white-space:normal;max-width:240px}
+.badge{white-space:nowrap}
 @media(max-width:600px){
   .desk{display:none}
-  th.t,td.t{max-width:130px}
-  th,td{padding:6px 6px;font-size:12px}
+  td.pick,th.pick{max-width:108px}
+  th,td{padding:6px 5px;font-size:12px}
 }
 </style>
 </head>
@@ -157,7 +158,7 @@ function render(D){
     const picks=esc(b.picks)+(b.note?` <span class="cash">↗ ${esc(b.note)}</span>`:'');
     const wp = b.result==='Fee' ? '<span class="muted">—</span>' : ((b.stake?(b.paid/b.stake).toFixed(2):'—')+'×');
     return `<tr>
-      <td class="t">${picks}</td>
+      <td class="t pick">${picks}</td>
       <td class="t">${esc(b.date)}</td>
       <td class="t desk">${esc(b.type||'')}</td>
       <td data-v="${b.stake}">${usd(b.stake)}</td>
@@ -168,21 +169,21 @@ function render(D){
     </tr>`;
   }).join('');
   const cFoot=`<tr class="ft">
-    <td class="t">Logged slips (not the split)</td><td></td><td class="desk"></td>
+    <td class="t pick">Logged slips (not the split)</td><td></td><td class="desk"></td>
     <td>${usd(cStaked)}</td><td>${usd(cPaid)}</td>
     <td class="${cNet>=0?'pos':'neg'}">${usd(cNet,true)}</td>
     <td>${cWins}–${cLosses}</td>
     <td class="desk"></td>
   </tr>
   <tr class="ft">
-    <td class="t">My counted share</td><td></td><td class="desk"></td>
+    <td class="t pick">My counted share</td><td></td><td class="desk"></td>
     <td></td><td></td>
     <td class="pos">${usd(half,true)}</td>
     <td>half of ${usd(acctProfit)}</td>
     <td class="desk"></td>
   </tr>`;
   document.getElementById('christable').innerHTML=`<table><thead><tr>
-    <th class="t">Picks</th><th class="t">Date</th><th class="t desk">Type</th>
+    <th class="t pick">Picks</th><th class="t">Date</th><th class="t desk">Type</th>
     <th>Stake</th><th>Paid</th><th>Profit</th><th>Result</th><th class="desk">Multiple</th>
   </tr></thead><tbody>${cRows}</tbody><tfoot>${cFoot}</tfoot></table>`;
 
@@ -192,7 +193,7 @@ function render(D){
     const profit=b.paid-b.stake;
     const picks=esc(b.picks)+(b.note?` <span class="cash">↗ ${esc(b.note)}</span>`:'');
     return `<tr>
-      <td class="t">${picks}</td>
+      <td class="t pick">${picks}</td>
       <td class="t">${esc(b.date)}</td>
       <td class="t desk">${b.matchup?esc(b.matchup):'<span class="muted">—</span>'}</td>
       <td class="desk">${esc(b.odds||'—')}</td>
@@ -203,13 +204,13 @@ function render(D){
     </tr>`;
   }).join('');
   const fFoot=`<tr class="ft">
-    <td class="t">Total</td><td></td><td class="desk"></td><td class="desk"></td>
+    <td class="t pick">Total</td><td></td><td class="desk"></td><td class="desk"></td>
     <td>${usd(fdStake)}</td><td>${usd(fdPaid)}</td>
     <td class="${fdNet>=0?'pos':'neg'}">${usd(fdNet,true)}</td>
     <td>${fdWins}–${fdLosses}</td>
   </tr>`;
   document.getElementById('fdtable').innerHTML=`<table><thead><tr>
-    <th class="t">Pick</th><th class="t">Date</th><th class="t desk">Matchup</th><th class="desk">Odds</th>
+    <th class="t pick">Pick</th><th class="t">Date</th><th class="t desk">Matchup</th><th class="desk">Odds</th>
     <th>Stake</th><th>Return</th><th>Profit</th><th>Result</th>
   </tr></thead><tbody>${fRows}</tbody><tfoot>${fFoot}</tfoot></table>`;
 
